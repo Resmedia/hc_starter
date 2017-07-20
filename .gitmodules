@@ -1,0 +1,6 @@
+[submodule "backend"]
+	path = backend
+	url = git@gitlab.helpcase.ru:helpcase/backend.git
+[submodule "frontend"]
+	path = frontend
+	url = git@gitlab.helpcase.ru:helpcase/frontend.git

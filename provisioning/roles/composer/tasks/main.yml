@@ -1,0 +1,5 @@
+- name: copy install_composer.sh remote machine
+  copy: src=install_composer.sh dest=/tmp/install_composer.sh
+
+- name: run install_composer.sh
+  raw: bash /tmp/install_composer.sh

@@ -1,0 +1,13 @@
+---
+
+- hosts: all
+  become: true
+  roles: 
+    - general
+    - php
+    - php-fpm
+    - composer
+    - apache
+      #    - mysql
+    - redis
+    - postinstall

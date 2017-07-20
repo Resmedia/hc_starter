@@ -1,0 +1,15 @@
+locale: en_US.UTF-8
+
+php:
+  version: 7.1
+
+db:
+  user: root
+  pass: root
+  name: dev
+  host: localhost
+
+apps:
+  - name: helpcase
+    user: vagrant
+    group: vagrant 

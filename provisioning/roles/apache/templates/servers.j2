@@ -1,0 +1,31 @@
+<VirtualHost *:80>
+	ServerName office.yii2.helpcase
+	DocumentRoot /var/www/backend/backend/web
+  <Directory /var/www/backend/backend/web>
+		Options +Indexes +FollowSymLinks +MultiViews
+		AllowOverride All
+		Require all granted
+  </Directory>
+</VirtualHost>
+
+<VirtualHost *:80>
+	ServerName api.yii2.helpcase
+	DocumentRoot /var/www/backend/api/web
+  <Directory /var/www/backend/api/web>
+		Options +Indexes +FollowSymLinks +MultiViews
+		AllowOverride All
+		Require all granted
+  </Directory>
+</VirtualHost>
+
+<VirtualHost *:80>
+	ServerName yii2.helpcase
+	DocumentRoot /var/www/backend/frontend/web
+  <Directory /var/www/backend/frontend/web>
+		Options +Indexes +FollowSymLinks +MultiViews
+		AllowOverride All
+		Require all granted
+  </Directory>
+</VirtualHost>
+
+

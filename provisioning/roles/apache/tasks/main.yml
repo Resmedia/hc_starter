@@ -1,0 +1,13 @@
+- name: install apache2
+  apt: name=apache2 update_cache=yes state=latest
+
+- name: setup apache hosts
+  template: src=servers.j2 dest=/etc/apache2/sites-available/yii2.helpcase.conf
+
+- name: enabled mod_rewrite
+  apache2_module: name=rewrite state=present
+
+- name: a2ensite yii2.helpcase
+  command: a2ensite yii2.helpcase.conf
+  notify:
+    - restart apache2

@@ -1,0 +1,5 @@
+- name: copy postinstall_script.sh to /tmp
+  copy: src=postinstall_script.sh dest=/tmp/postinstall_script.sh
+
+- name: postinstall script
+  raw: bash /tmp/postinstall_script.sh

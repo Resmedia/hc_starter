@@ -1,0 +1,36 @@
+- name: install mysql
+  apt: name={{ item }} update_cache=yes cache_valid_time=3600 state=present
+  with_items:
+    - "python-mysqldb"
+    - "mysql-server"
+    - "mysql-client"
+
+- name: start the mysql service
+  service: 
+    name: mysql 
+    state: started
+    enabled: true
+
+- name: update mysql root password for all root accounts
+  mysql_user: 
+    name: '{{ db.user }}'
+    host: '{{ db.host }}' 
+    password: "{{ db.pass }}"
+    login_user: '{{ db.user }}'
+    login_password: "{{ db.pass }}"
+    check_implicit_admin: yes
+    priv: "*.*:ALL,GRANT"
+
+- name: copy the root credentials as .my.cnf file
+  template: src=my.cnf.j2 dest=~/.my.cnf mode=0600
+
+- name: Create a new database with name {{ db.name }}
+  mysql_db:
+    name: '{{ db.name }}'
+    state: present
+
+- name: import helpcase.sql similar to mysql -u <username> -p <password> < hostname.sql
+  mysql_db:
+    state: import
+    name: '{{ db.name }}'
+    target: /data/helpcase.sql
