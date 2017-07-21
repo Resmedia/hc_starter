@@ -8,6 +8,6 @@
     - php-fpm
     - composer
     - apache
-      #    - mysql
+    - mysql
     - redis
     - postinstall

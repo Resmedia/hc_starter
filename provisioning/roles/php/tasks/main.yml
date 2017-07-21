@@ -14,3 +14,8 @@
     - gd
     - zip
 
+- name: install php-xdebug
+  apt: name=php-xdebug state=present
+
+- name: update xdebug config
+  copy: src=xdebug.ini dest=/etc/php/{{ php.version }}/cli/conf.d/20-xdebug.ini
