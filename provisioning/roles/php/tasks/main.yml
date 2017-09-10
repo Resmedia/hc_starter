@@ -15,10 +15,13 @@
     - zip
 
 - name: install php-xdebug & mod-php
-  apt: name=php-xdebug state=present
+  apt: name={{ item }} state=present
   with_items:
     - php-xdebug
     - libapache2-mod-php
 
 - name: update xdebug config
-  copy: src=xdebug.ini dest=/etc/php/{{ php.version }}/cli/conf.d/20-xdebug.ini
+  copy: src=xdebug.ini dest=/etc/php/{{ php.version }}/{{ item }}/conf.d/20-xdebug.ini
+  with_items:
+    - cli
+    - apache2
