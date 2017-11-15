@@ -1,9 +1,39 @@
-- name: install mysql
-  apt: name={{ item }} update_cache=yes cache_valid_time=3600 state=present
+- name: Add MySQL Apt Key
+  apt_key:
+    keyserver: ha.pool.sks-keyservers.net
+    id: A4A9406876FCBD3C456770C88C718D3B5072E1F5
+    state: present
+
+- name: Add MySQL Repository
+  copy:
+    src: mysql.list # This is files/mysql.list, which just contains "deb http://repo.mysql.com/apt/ubuntu/ trusty mysql-5.7"
+    dest: /etc/apt/sources.list.d/mysql.list
+    owner: root
+    group: root
+
+- name: Set root Password
+  debconf:
+    name: mysql-community-server
+    question: 'mysql-community-server/root-pass'
+    value: '{{ db.pass }}' # Set as a variable
+    vtype: password
+
+- name: Set root Password Again
+  debconf:
+    name: mysql-community-server
+    question: 'mysql-community-server/re-root-pass'
+    value: '{{ db.pass }}' # Set as a variable
+    vtype: password
+
+- name: Install MySQL 5.7
+  apt:
+    pkg: '{{ item }}'
+    state: latest
+    update_cache: true
   with_items:
-    - "python-mysqldb"
-    - "mysql-server"
-    - "mysql-client"
+    - mysql-server
+    - python-mysqldb
+    - mysql-client
 
 - name: start the mysql service
   service: 
@@ -11,15 +41,15 @@
     state: started
     enabled: true
 
-- name: update mysql root password for all root accounts
-  mysql_user: 
-    name: '{{ db.user }}'
-    host: '{{ db.host }}' 
-    password: "{{ db.pass }}"
-    login_user: '{{ db.user }}'
-    login_password: "{{ db.pass }}"
-    check_implicit_admin: yes
-    priv: "*.*:ALL,GRANT"
+#- name: update mysql root password for all root accounts
+#  mysql_user:
+#    name: '{{ db.user }}'
+#    host: '{{ db.host }}'
+#    password: "{{ db.pass }}"
+#    login_user: '{{ db.user }}'
+#    login_password: "{{ db.pass }}"
+#    check_implicit_admin: yes
+#    priv: "*.*:ALL,GRANT"
 
 - name: copy the root credentials as .my.cnf file
   template: src=my.cnf.j2 dest=~/.my.cnf mode=0600
