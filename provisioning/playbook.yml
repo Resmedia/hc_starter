@@ -10,4 +10,5 @@
     - apache
     - mysql
     - redis
-    - postinstall
+    - elasticsearch
+    # - postinstall

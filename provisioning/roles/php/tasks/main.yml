@@ -4,6 +4,9 @@
 - name: update apt cache
   apt: update_cache=yes
 
+- name: install php
+  apt: name=php{{ php.version }} state=present
+
 - name: install php requirements
   apt: name=php{{ php.version }}-{{ item }} state=present
   with_items: 
@@ -25,3 +28,4 @@
   with_items:
     - cli
     - apache2
+  ignore_errors: yes

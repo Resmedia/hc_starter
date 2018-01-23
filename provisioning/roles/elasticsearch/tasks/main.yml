@@ -1,0 +1,62 @@
+- name: Add apt repository
+  apt_repository:
+      repo: 'ppa:webupd8team/java'
+      state: present
+      update_cache: yes
+
+- name: Accept license
+  debconf:
+    name: 'oracle-java8-installer'
+    question: 'shared/accepted-oracle-license-v1-1'
+    value: 'true'
+    vtype: 'select'
+
+- name: Install java
+  apt: name={{ item }} state=present
+  with_items:
+      - oracle-java8-installer
+      - ca-certificates
+      - oracle-java8-set-default
+
+- name: install elasticsearch GPG
+  shell: wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+
+- name: add elasticsearch to sourcelist
+  shell: echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-5.x.list
+
+- name: update apt cache
+  apt: update_cache=yes
+
+- name: install apt packages
+  apt: name={{ item }} state=present
+  with_items:
+    - elasticsearch
+    - kibana
+    - logstash
+
+- name: copy the elasticsearch conf file
+  template: src=elasticsearch.yml.j2 dest=/etc/elasticsearch/elasticsearch.yml mode=0777
+
+- name: copy the kibana conf file
+  template: src=kibana.yml.j2 dest=/etc/kibana/kibana.yml mode=0777
+
+- name: copy the logstash conf file
+  template: src=logstash.conf.j2 dest=/etc/logstash/conf.d/logstash.conf mode=0777
+
+- name: restart services
+  service: name={{item}} state=restarted enabled=true
+  with_items:
+    - elasticsearch
+    - kibana
+
+- name: ensure mysql-connector directory exists
+  file:
+    path: /data/mysql-connector-java-5.1.42
+    state: directory
+
+- name: unarchive mysql connector
+  unarchive:
+    src: https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.42.zip
+    dest: /data
+    remote_src: yes
+

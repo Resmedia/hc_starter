@@ -6,3 +6,12 @@
 
 - name: reload locale
   raw: . /etc/default/locale
+
+- name: add git apt-repository
+  apt_repository: repo='ppa:git-core/ppa' state=present update_cache=yes
+
+- name: install apt packages
+  apt: name={{item}}
+  with_items:
+    - git
+    - unzip
