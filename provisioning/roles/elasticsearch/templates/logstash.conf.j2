@@ -7,12 +7,24 @@ input {
     jdbc_driver_library => "/data/mysql-connector-java-5.1.42/mysql-connector-java-5.1.42-bin.jar"
     jdbc_driver_class => "com.mysql.jdbc.Driver"
     jdbc_fetch_size => 100
-    statement => "SELECT * from objects"
+    statement => "SELECT objects.*, GROUP_CONCAT(`keys`.name) tags, GROUP_CONCAT(`keys`.synonym) synonyms from objects, keys_objects, `keys`  WHERE objects.id=keys_objects.object_id and keys_objects.key_id=`keys`.id GROUP BY objects.id"
   }
 }
+
+filter {
+    mutate {
+        split => {
+            "tags" => ","
+        }
+        split => {
+            "synonyms" => ","
+        }
+    }
+}
+
 output {
   elasticsearch {
-    index => "test"
+    index => "helpcase"
     document_type => "object"
     document_id => "%{id}"
     hosts => "localhost:9200"
