@@ -1,0 +1,57 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+version: "3.1"
+services:
+
+  mysql:
+    image: mysql:5.7
+    container_name: helpcase-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=helpcase
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+    ports:
+      - "8082:3306"
+
+  elasticsearch:
+    image: elasticsearch:5.4-alpine
+    container_name: helpcase-elasticsearch
+
+  web:
+    image: nginx
+    container_name: helpcase-webserver
+    depends_on:
+      - php-fpm
+    volumes:
+      - ./configuration/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./configuration/nginx/dev.helpcase.ru.conf:/etc/nginx/conf.d/dev.helpcase.ru.conf
+      - ./configuration/nginx/devapi.helpcase.ru.conf:/etc/nginx/conf.d/devapi.helpcase.ru.conf
+      - ./configuration/nginx/devoffice.helpcase.ru.conf:/etc/nginx/conf.d/devoffice.helpcase.ru.conf
+    ports:
+      - "8888:80"
+    environment:
+     - NGINX_HOST=foobar.com
+     - NGINX_PORT=80
+
+  php-fpm:
+    image: php:7.1-fpm
+    container_name: helpcase-php-fpm
+    depends_on:
+      - composer
+    working_dir: /var/www/backend
+    volumes:
+      - ./backend:/var/www/backend
+      - ./configuration/php-fpm/php-ini-overrides.ini:/etc/php/7.1/fpm/conf.d/99-overrides.ini
+    command: >
+      php init --env=Local --overwrite=y
+      php yii migrate << "yes"
+
+  composer:
+    image: composer/composer:php7
+    command: install
+    working_dir: /var/www/backend
+    volumes:
+      - ./backend:/var/www/backend
+
