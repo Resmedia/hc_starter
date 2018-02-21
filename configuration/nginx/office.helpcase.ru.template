@@ -1,20 +1,20 @@
 server {
         listen web:80;
-        server_name devoffice.helpcase.ru;
+        server_name ${OFFICE_HOST};
 
         location / {
-                rewrite ^ https://devoffice.helpcase.ru$request_uri permanent;        #301 redirect
+                rewrite ^ https://${OFFICE_HOST}$request_uri permanent;        #301 redirect
         }
 }
 
 server {
         listen web:443 ssl http2;
-        server_name devoffice.helpcase.ru;
+        server_name ${OFFICE_HOST};
 
-        access_log  /home/domains/dev.helpcase.ru/log/nginx-access_office.log;
-        error_log   /home/domains/dev.helpcase.ru/log/nginx-error_office.log;
+        access_log  /home/domains/${HOST}/log/nginx-access_office.log;
+        error_log   /home/domains/${HOST}/log/nginx-error_office.log;
 
-        root        /home/domains/dev.helpcase.ru/releases/backend/latest/backend/web;
+        root        /home/domains/${HOST}/releases/backend/latest/backend/web;
         index       index.php;
 
         ssl_certificate                 /etc/nginx/ssl/helpcase.ru/fullchain.pem;
@@ -32,12 +32,12 @@ server {
         }
 
         location ~* ^/.+\.(jpe?g|gif|css|js|txt|swf|ico|png|pdf|doc|docx|wmv|avi|3gp|rar|gz|zip|mp3|mpe?g|bmp|flv|svg|ttf|woff|woff2|map)$ {
-                root /home/domains/dev.helpcase.ru/releases/backend/latest/backend/web;
+                root /home/domains/${HOST}/releases/backend/latest/backend/web;
                 error_page  404 = @fallback;
         }
 
         location @fallback {
-                rewrite ^ https://dev.helpcase.ru/error permanent;
+                rewrite ^ https://${HOST}/error permanent;
         }
 
         location /status {
@@ -47,7 +47,7 @@ server {
                 deny all;
                 include                       fastcgi_params;
                 fastcgi_param                 SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                fastcgi_pass                  unix:/var/run/devoffice.helpcase.ru.sock;
+                fastcgi_pass                  unix:/var/run/${OFFICE_HOST}.sock;
         }
 
         location ~ \.ph(p[3-5]?|tml)$ {
@@ -55,15 +55,15 @@ server {
                 fastcgi_param                 SCRIPT_FILENAME $document_root$fastcgi_script_name;
                 fastcgi_param                 PATH_INFO $fastcgi_path_info;
                 fastcgi_param                 HTTPS on;
-                fastcgi_pass                  unix:/var/run/devoffice.helpcase.ru.sock;
+                fastcgi_pass                  unix:/var/run/${OFFICE_HOST}.sock;
                 fastcgi_intercept_errors      on;
                 try_files                     $uri =404;
         }
 
         location / {
-                root        /home/domains/dev.helpcase.ru/releases/backend/latest/backend/web;
+                root        /home/domains/${HOST}/releases/backend/latest/backend/web;
                 if ($http_host ~ "(.*)"){
-                  rewrite ^/(uploads/.*)$ http://dev.helpcase.ru/$1 redirect;
+                  rewrite ^/(uploads/.*)$ http://${HOST}/$1 redirect;
                 }
                 if (!-e $request_filename){
                  rewrite ^(.*)$ /index.php;

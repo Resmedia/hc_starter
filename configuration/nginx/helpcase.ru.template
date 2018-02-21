@@ -1,9 +1,9 @@
 server {
         listen web:80;
-        server_name dev.helpcase.ru;
+        server_name ${HOST};
 
         location / {
-                rewrite ^ https://dev.helpcase.ru$request_uri permanent;        #301 redirect
+                rewrite ^ https://${HOST}$request_uri permanent;        #301 redirect
         }
 }
 
@@ -27,10 +27,10 @@ server {
         listen web:443 ssl http2;
         server_name dev.helpcase.ru;
 
-        access_log  /home/domains/dev.helpcase.ru/log/nginx-access.log;
-        error_log   /home/domains/dev.helpcase.ru/log/nginx-error.log;
+        access_log  /home/domains/${HOST}/log/nginx-access.log;
+        error_log   /home/domains/${HOST}/log/nginx-error.log;
 
-        root        /home/domains/dev.helpcase.ru/releases/frontend/latest/build/;
+        root        /home/domains/${HOST}/releases/frontend/latest/build/;
         index       index.php index.html;
         autoindex   off;
 
@@ -49,12 +49,12 @@ server {
         }
 
         location ~* ^/.+\.(jpe?g|gif|css|js|txt|swf|ico|png|pdf|doc|docx|wmv|avi|3gp|rar|gz|zip|mp3|mpe?g|bmp|flv|svg|ttf|woff|woff2|map|html)$ {
-                root /home/domains/dev.helpcase.ru/releases/frontend/latest/build/;
+                root /home/domains/${HOST}/releases/frontend/latest/build/;
                 error_page  404 = @fallback;
         }
 
         location @fallback {
-                rewrite ^ https://dev.helpcase.ru/error permanent;
+                rewrite ^ https://${HOST}/error permanent;
         }
 
         location /status {
@@ -64,34 +64,23 @@ server {
                 deny all;
                 include                       fastcgi_params;
                 fastcgi_param                 SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                fastcgi_pass                  unix:/var/run/dev.helpcase.ru.sock;
+                fastcgi_pass                  unix:/var/run/${HOST}.sock;
         }
 
         location /sitemap.xml {
-                proxy_pass https://devapi.helpcase.ru/sitemap.xml;
+                proxy_pass https://${API_HOST}/sitemap.xml;
         }
 
         location /news.rss {
-                proxy_pass https://devapi.helpcase.ru/news.rss;
+                proxy_pass https://${API_HOST}/news.rss;
         }
 
         location /objects.rss {
-                proxy_pass https://devapi.helpcase.ru/objects.rss;
+                proxy_pass https://${API_HOST}/objects.rss;
         }
 
-#        location ~ \.ph(p[3-5]?|tml)$ {
-#                include                       fastcgi_params;
-#                fastcgi_param                 SCRIPT_FILENAME $document_root$fastcgi_script_name;
-#                fastcgi_param                 PATH_INFO $fastcgi_path_info;
-#                fastcgi_param                 HTTPS on;
-#                fastcgi_pass                  unix:/var/run/dev.helpcase.ru.sock;
-#                fastcgi_intercept_errors      on;
-#                try_files                     $uri =404;
-#        }
 
         location / {
-#                root        /home/domains/dev.helpcase.ru/releases/frontend/latest/build/;
-#                rewrite ^(.*)$ /index.html break;
                 proxy_pass http://localhost:3000;
         }
 }
