@@ -1,9 +1,5 @@
-###############################################################################
-#                          Generated on phpdocker.io                          #
-###############################################################################
 version: "3.1"
 services:
-
   mysql:
     image: mysql:5.7
     container_name: helpcase-mysql
@@ -16,7 +12,7 @@ services:
 
   web:
     image: nginx
-    container_name: helpcase-webserver
+    container_name: helpcase-web
     depends_on:
       - php-fpm
     volumes:
@@ -25,9 +21,9 @@ services:
       - ./configuration/nginx/api.helpcase.ru.template:/tmp/api.helpcase.ru.template
       - ./configuration/nginx/office.helpcase.ru.template:/tmp/office.helpcase.ru.template
     command: >
-      /bin/sh -c "envsubst < /tmp/helpcase.ru.template > /etc/nginx/conf.d/helpcase.ru.conf"
-      /bin/sh -c "envsubst < /tmp/api.helpcase.ru.template > /etc/nginx/conf.d/api.helpcase.ru.conf"
-      /bin/sh -c "envsubst < /tmp/office.helpcase.ru.template > /etc/nginx/conf.d/office.helpcase.ru.conf"
+      /bin/bash -c "envsubst < /tmp/helpcase.ru.template > /etc/nginx/conf.d/helpcase.ru.conf"
+      /bin/bash -c "envsubst < /tmp/api.helpcase.ru.template > /etc/nginx/conf.d/api.helpcase.ru.conf"
+      /bin/bash -c "envsubst < /tmp/office.helpcase.ru.template > /etc/nginx/conf.d/office.helpcase.ru.conf"
     ports:
       - "8888:80"
 
