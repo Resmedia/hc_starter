@@ -2,43 +2,40 @@ version: "3.1"
 services:
   mysql:
     image: mysql:5.7
-    container_name: helpcase-mysql
     ports:
       - "8082:3306"
 
   elasticsearch:
     image: elasticsearch:5.4-alpine
-    container_name: helpcase-elasticsearch
 
   web:
-    image: nginx
-    container_name: helpcase-web
+    restart: always
+    build: configuration/nginx
     depends_on:
       - php-fpm
-    volumes:
-      - ./configuration/nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./configuration/nginx/helpcase.ru.template:/tmp/helpcase.ru.template
-      - ./configuration/nginx/api.helpcase.ru.template:/tmp/api.helpcase.ru.template
-      - ./configuration/nginx/office.helpcase.ru.template:/tmp/office.helpcase.ru.template
-    command: >
-      /bin/bash -c "envsubst < /tmp/helpcase.ru.template > /etc/nginx/conf.d/helpcase.ru.conf"
-      /bin/bash -c "envsubst < /tmp/api.helpcase.ru.template > /etc/nginx/conf.d/api.helpcase.ru.conf"
-      /bin/bash -c "envsubst < /tmp/office.helpcase.ru.template > /etc/nginx/conf.d/office.helpcase.ru.conf"
     ports:
       - "8888:80"
+    volumes:
+      - ./configuration/nginx/default.conf:/etc/nginx/sites-available/default.conf
+      - ./configuration/nginx/default.conf:/etc/nginx/sites-enabled/default.conf
+      - .:/var/www/html
+    networks:
+      - webnet
 
   php-fpm:
-    image: php:7.1-fpm
-    container_name: helpcase-php-fpm
+    image: php:7.1.11-fpm-alpine
     depends_on:
       - composer
-    working_dir: /var/www/backend
+    expose:
+      - 9000
     volumes:
       - ./backend:/var/www/backend
       - ./configuration/php-fpm/php-ini-overrides.ini:/etc/php/7.1/fpm/conf.d/99-overrides.ini
-    command: >
-      php init --env=Local --overwrite=y
-      php yii migrate << "yes"
+    # command: >
+      # php init --env=Local --overwrite=y
+      # php yii migrate << "yes"
+    networks:
+      - webnet
 
   composer:
     image: composer/composer:php7
@@ -47,3 +44,11 @@ services:
     volumes:
       - ./backend:/var/www/backend
 
+  nodejs:
+    image: node:8
+    volumes:
+      - ./frontend:/frontend
+      - ./api:/api
+
+networks:
+  webnet:
